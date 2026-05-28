@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Noto_Sans_TC } from "next/font/google";
+const noto = Noto_Sans_TC({ subsets: ["latin"], weight: ["400","700","900"] });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
