@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePsyStore } from "@/store/store";
+import { useRouter } from "next/navigation"
 
 export default function Result() {
-  
-  const psyData = usePsyStore( (state: { psyData: any; })=> state.psyData );
+  const router = useRouter();
+  const psyData = usePsyStore( (state)=> state.psyData );
+  const setPsyScore = usePsyStore( (state) => state.setScore );
   const [psyResult, setPsyResult] = useState(<></>);
   
   useEffect( ()=>{
@@ -28,6 +30,11 @@ export default function Result() {
     }
   }
 
+  function playAgain(){
+    setPsyScore(0);
+    router.push("/");
+  }
+
   
   
   return (
@@ -38,7 +45,11 @@ export default function Result() {
         
         {psyResult}
         
-        <Link className="text-white bg-black px-3 py-2" href="/">再玩一次</Link>
+        <div 
+          className="text-white bg-black px-3 py-2" 
+          onClick={playAgain}>
+          再玩一次
+        </div>
       </div>
     </>
   );

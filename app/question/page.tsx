@@ -9,16 +9,27 @@ export default function Question() {
   const router = useRouter();
   const [questionIndex, setQuestionIndex] = useState(0);
 
-  const psyData = usePsyStore( (state: { psyData: any; }) => state.psyData );
-
+  const psyData = usePsyStore( (state) => state.psyData );
+  const setPsyScore = usePsyStore( (state) => state.setScore );
 
   console.log(psyData);
   console.log(psyData.quizData);
 
 
+
+  useEffect( () => {
+    console.log("目前分數：" + psyData.score);
+  }, [psyData.score] );
+
+
+
   function nextQuestion(optionIndex: any){
     console.log("使用者選擇：" + optionIndex);
     
+    setPsyScore( psyData.score + psyData.quizData[questionIndex].options[optionIndex].value );
+    console.log( psyData.score );
+
+
     if( questionIndex != psyData.quizData.length-1 ){  
       console.log("下一題～");
       setQuestionIndex( questionIndex + 1 );
