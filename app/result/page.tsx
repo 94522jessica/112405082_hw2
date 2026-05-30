@@ -1,16 +1,16 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePsyStore, resultData, BreakfastType } from "@/store/store";
+import Image from "next/image";
 
-// ── 五角形雷達圖 ──────────────────────────────────────────────
+// ── 五角形雷達圖 (整體放大，字體改為深棕色) ──────────────────
 function RadarChart({ stats, color }: { stats: Record<string, number>; color: string }) {
   const labels = Object.keys(stats);
-  const values = Object.values(stats);
-  const size = 200;
+  const size = 200; // ⚡️ 從 160 放大到 200
   const cx = size / 2;
   const cy = size / 2;
-  const r = 70;
+  const r = 65;    // ⚡️ 半徑從 52 放大到 65
   const n = labels.length;
 
   function polarToXY(angle: number, radius: number) {
@@ -21,7 +21,6 @@ function RadarChart({ stats, color }: { stats: Record<string, number>; color: st
     };
   }
 
-  // 背景五邊形（3 層）
   const bgPolygons = [1, 0.66, 0.33].map((scale) => {
     const pts = labels.map((_, i) => {
       const { x, y } = polarToXY((360 / n) * i, r * scale);
@@ -30,7 +29,6 @@ function RadarChart({ stats, color }: { stats: Record<string, number>; color: st
     return pts.join(" ");
   });
 
-  // 資料多邊形
   const dataPoints = labels.map((label, i) => {
     const val = stats[label] / 100;
     const { x, y } = polarToXY((360 / n) * i, r * val);
@@ -38,33 +36,28 @@ function RadarChart({ stats, color }: { stats: Record<string, number>; color: st
   });
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-      {/* 背景網格 */}
+    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} className="overflow-visible">
       {bgPolygons.map((pts, i) => (
-        <polygon key={i} points={pts} fill="none" stroke="#E5E7EB" strokeWidth="1" />
+        <polygon key={i} points={pts} fill="none" stroke="#E5E7EB" strokeWidth="1.5" />
       ))}
-      {/* 軸線 */}
       {labels.map((_, i) => {
         const { x, y } = polarToXY((360 / n) * i, r);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#E5E7EB" strokeWidth="1" />;
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#E5E7EB" strokeWidth="1.5" />;
       })}
-      {/* 資料填色區 */}
       <polygon
         points={dataPoints.join(" ")}
         fill={color}
         fillOpacity="0.25"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="2.5"
       />
-      {/* 資料點 */}
       {labels.map((_, i) => {
         const val = stats[Object.keys(stats)[i]] / 100;
         const { x, y } = polarToXY((360 / n) * i, r * val);
         return <circle key={i} cx={x} cy={y} r={4} fill={color} />;
       })}
-      {/* 標籤 */}
       {labels.map((label, i) => {
-        const { x, y } = polarToXY((360 / n) * i, r + 18);
+        const { x, y } = polarToXY((360 / n) * i, r + 16);
         return (
           <text
             key={i}
@@ -72,9 +65,10 @@ function RadarChart({ stats, color }: { stats: Record<string, number>; color: st
             y={y}
             textAnchor="middle"
             dominantBaseline="middle"
-            fontSize="9"
-            fill="#6B7280"
-            fontWeight="bold"
+            fontSize="12"
+            fill="#451a03" // ⚡️ 強制設定為 amber-950 色號
+            fontWeight="900"
+            letterSpacing="1"
           >
             {label}
           </text>
@@ -91,9 +85,9 @@ export default function Result() {
   const result = usePsyStore((s) => s.result);
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // 若直接進入此頁（無結果），跳回首頁
     if (!result) {
       router.replace("/");
       return;
@@ -111,135 +105,165 @@ export default function Result() {
   }
 
   function handleCopy() {
-    const text = `我的早餐人格是「${data.emoji} ${data.name}」！\n核心：${data.core}\n${data.tags.join(" ")}\n\n快來測你是哪種早餐店早餐 🥪🥛`;
+    // 自動取得目前網站的首頁網址 (例如：https://112405082-hw2.vercel.app)
+    const appUrl = window.location.origin;
+    
+    // 將網址加入到複製的文字中
+    const text = `我的早餐人格是「 ${data.name}」！\n核心：${data.core}\n${data.tags.join(" ")}\n\n快來測你是哪種早餐店早餐 🥪🥛\n👉 點此測驗：${appUrl}`;
+    
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
   }
 
+  const prevPage = () => setCurrentPage((p) => (p > 1 ? p - 1 : 4));
+  const nextPage = () => setCurrentPage((p) => (p < 4 ? p + 1 : 1));
+
   return (
-    <main
-      style={{ fontFamily: "'Noto Sans TC', sans-serif" }}
-      className="min-h-screen flex flex-col items-center px-4 py-10 relative overflow-hidden"
-    >
-      {/* 背景 */}
-      <div
-        className="absolute inset-0 -z-10"
-        style={{ background: `linear-gradient(160deg, ${data.bgColor} 0%, #FFF8EE 100%)` }}
-      />
+    <main className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-[95%] max-w-[550px] relative flex items-center justify-center">
+        
+        {/* ⬅️ 左切換按鈕 */}
+        <button 
+          onClick={prevPage}
+          className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 bg-[#FDF5E6]/90 border-2 border-[#356392] text-[#356392] font-black text-xl rounded-full flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-all"
+        >
+          ‹
+        </button>
 
-      <div
-        className="w-full max-w-sm transition-all duration-700"
-        style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(24px)" }}
-      >
-        {/* 結果標題卡 */}
+        {/* ➡️ 右切換按鈕 */}
+        <button 
+          onClick={nextPage}
+          className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 bg-[#FDF5E6]/90 border-2 border-[#356392] text-[#356392] font-black text-xl rounded-full flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-all"
+        >
+          ›
+        </button>
+
+        {/* 🍽️ 主體大盤子卡片 */}
         <div
-          className="rounded-3xl px-7 py-8 text-center shadow-xl mb-5"
+          className="w-full aspect-square flex flex-col items-center justify-center text-center p-8 sm:p-12 relative transition-all duration-500 select-none"
           style={{
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(12px)",
-            border: `2px solid ${data.color}40`,
+            backgroundImage: "url('/plate.png')",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "contain",
+            backgroundPosition: "center",
+            opacity: visible ? 1 : 0,
+            transform: visible ? "scale(1)" : "scale(0.95)"
           }}
         >
-          <div className="text-6xl mb-3">{data.emoji}</div>
-          <p className="text-xs font-bold tracking-widest mb-1" style={{ color: data.color }}>
-            你是
-          </p>
-          <h1 className="text-3xl font-black text-stone-800 mb-2">{data.name}</h1>
-          <p
-            className="text-sm font-bold px-4 py-1.5 rounded-full inline-block"
-            style={{ background: `${data.color}18`, color: data.color }}
-          >
-            {data.core}
-          </p>
-        </div>
-
-        {/* 描述 */}
-        <div
-          className="rounded-3xl px-7 py-6 shadow-md mb-5"
-          style={{
-            background: "rgba(255,255,255,0.75)",
-            backdropFilter: "blur(8px)",
-            border: `1.5px solid ${data.color}25`,
-          }}
-        >
-          <p className="text-sm text-stone-600 leading-7">{data.description}</p>
-        </div>
-
-        {/* 標籤 */}
-        <div className="flex flex-wrap gap-2 mb-5 px-1">
-          {data.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs font-bold px-3 py-1.5 rounded-full"
-              style={{ background: `${data.color}15`, color: data.color }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* 雷達圖 */}
-        <div
-          className="rounded-3xl px-7 py-6 shadow-md mb-5 flex flex-col items-center"
-          style={{
-            background: "rgba(255,255,255,0.75)",
-            backdropFilter: "blur(8px)",
-            border: `1.5px solid ${data.color}25`,
-          }}
-        >
-          <p className="text-xs font-bold tracking-widest mb-4" style={{ color: data.color }}>
-            人格五角形
-          </p>
-          <RadarChart stats={data.stats} color={data.color} />
-          {/* 數值列表 */}
-          <div className="w-full mt-4 grid grid-cols-5 gap-1 text-center">
-            {Object.entries(data.stats).map(([key, val]) => (
-              <div key={key}>
-                <div className="text-xs font-black text-stone-700">{val}</div>
-                <div className="text-[10px] text-stone-400">{key}</div>
+          <div className="w-[85%] sm:w-[80%] h-[75%] flex flex-col items-center justify-center relative">
+            
+            {/* ─── 第 1 頁：主餐圖片 + 標題 + 人生核心 (全面放大 + 統一 amber-950) ─── */}
+            {currentPage === 1 && (
+              <div className="animate-fade-in flex flex-col items-center">
+                <div className="mb-2 sm:mb-4 hover:scale-105 transition-transform duration-300">
+                  {/* ⚡️ 圖片放大：h-36 -> h-44 */}
+                  <Image src={data.image} alt={data.name} width={200} height={200} className="drop-shadow-md object-contain h-36 sm:h-44 w-auto" />
+                </div>
+                <p className="text-m sm:text-base font-black tracking-widest mb-1 text-amber-950/80">
+                  你的早餐靈魂是
+                </p>
+                {/* ⚡️ 標題放大：text-2xl -> text-4xl */}
+                <h1 className="text-4xl sm:text-5xl font-black text-amber-950 mb-3">{data.name}</h1>
+                <p
+                  className="text-sm sm:text-base font-bold px-5 py-2.5 rounded-full inline-block shadow-sm border border-amber-900/10 text-amber-950 bg-amber-900/5 gap-2"
+                >
+                  {data.core}
+                </p>
               </div>
+            )}
+
+            {/* ─── 第 2 頁：標籤群 + 人格深度敘述 (字體放大 + 統一 amber-950) ─── */}
+            {currentPage === 2 && (
+              <div className="animate-fade-in flex flex-col items-center w-full">
+                {/* ⚡️ 標籤放大 */}
+                <div className="flex flex-wrap justify-center gap-2 mb-4 sm:mb-5 max-h-[80px] overflow-hidden">
+                  {data.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs sm:text-sm font-bold px-3 py-1.5 rounded-md text-amber-950 bg-amber-900/10"
+                      style={{ background: "linear-gradient(135deg, #f7e596, #f7e596)" }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                {/* ⚡️ 敘述文字放大 */}
+                <div 
+                className="text-sm sm:text-base text-amber-950 leading-7 sm:leading-8 text-left font-bold bg-[#FDF5E6]/40 p-4 rounded-2xl max-h-[160px] sm:max-h-[200px] overflow-y-auto tracking-wide border border-dashed border-amber-900/10 w-full"
+                style={{ background: "linear-gradient(135deg, #f7e596, #f7e596)" }}
+                >
+                  {data.description}
+                </div>
+              </div>
+            )}
+
+            {/* ─── 第 3 頁：雷達圖 + 數值分析面板 (全面放大 + 統一 amber-950) ─── */}
+            {currentPage === 3 && (
+              <div className="animate-fade-in flex flex-col items-center w-full">
+                <RadarChart stats={data.stats} color={data.color} />
+                <div className="w-full mt-4 sm:mt-6 grid grid-cols-5 gap-1 text-center border-t border-dashed border-amber-900/20 pt-3 sm:pt-4">
+                  {Object.entries(data.stats).map(([key, val]) => (
+                    <div key={key}>
+                      {/* ⚡️ 數值放大 */}
+                      <div className="text-sm sm:text-lg font-black text-amber-950">{val}</div>
+                      <div className="text-[10px] sm:text-xs text-amber-950/80 font-bold">{key}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ─── 第 4 頁：完美搭配餐點 + 功能操作區 (去外框 + 放大 + 專屬按鈕配色) ─── */}
+            {currentPage === 4 && (
+              <div className="animate-fade-in flex flex-col items-center w-full space-y-4 sm:space-y-6">
+                
+                {/* ⚡️ 搭配餐點 (拔掉背景與外框，像第一頁一樣純圖文) */}
+                <div className="flex flex-col items-center gap-2 w-full mt-2">
+                  <div className="mb-1 hover:scale-105 transition-transform duration-300">
+                    <Image src={data.pairingImage} alt={data.pairing} width={140} height={140} className="object-contain drop-shadow-md h-28 sm:h-32 w-auto" />
+                  </div>
+                  <p className="text-xs sm:text-sm text-amber-950/80 font-black tracking-widest">最佳組合夥伴</p>
+                  <p className="text-2xl sm:text-4xl font-black text-amber-950"> {data.pairing}</p>
+                </div>
+
+                {/* ⚡️ 按鈕功能區 (放大 + 改色) */}
+                <div className="flex flex-col gap-3 w-full max-w-[260px]">
+                  <button
+                    onClick={handleCopy}
+                    className="w-full py-3.5 sm:py-4 rounded-full font-black text-lg sm:text-xl tracking-widest transition-all duration-200 active:scale-95 shadow-lg text-[#356392]"
+                    style={{ background: "linear-gradient(135deg, #f7e596, #f7e596)" }}
+                  >
+                    {copied ? "已複製連結" : "分享點餐單"}
+                  </button>
+                  <button
+                    onClick={handlePlayAgain}
+                    className="w-full py-3.5 sm:py-4 rounded-full font-black text-lg sm:text-xl tracking-widest transition-all duration-200 active:scale-95 shadow-lg text-[#356392]"
+                    style={{ background: "linear-gradient(135deg, #f7e596, #f7e596)" }}
+                  >
+                    再點一次
+                  </button>
+                </div>
+
+              </div>
+            )}
+
+          </div>
+
+          {/* 📍 盤底分頁小進度點 */}
+          <div className="absolute bottom-8 sm:bottom-12 flex gap-2">
+            {[1, 2, 3, 4].map((page) => (
+              <div
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  currentPage === page ? "w-6 bg-[#356392]" : "w-2.5 bg-[#356392]/30 hover:bg-[#356392]/50"
+                }`}
+              />
             ))}
           </div>
-        </div>
 
-        {/* 適合搭配 */}
-        <div
-          className="rounded-3xl px-7 py-5 shadow-md mb-7 flex items-center gap-4"
-          style={{
-            background: "rgba(255,255,255,0.75)",
-            backdropFilter: "blur(8px)",
-            border: `1.5px solid ${data.color}25`,
-          }}
-        >
-          <div className="text-3xl">{data.pairingEmoji}</div>
-          <div>
-            <p className="text-xs text-stone-400 font-medium">最佳搭配</p>
-            <p className="text-base font-black text-stone-800">{data.pairing}</p>
-          </div>
-        </div>
-
-        {/* 按鈕 */}
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={handleCopy}
-            className="w-full py-4 rounded-2xl font-black text-base tracking-wide transition-all duration-200 active:scale-95 shadow-lg text-white"
-            style={{ background: `linear-gradient(135deg, ${data.color}, #EA580C)` }}
-          >
-            {copied ? "已複製 ✅" : "分享結果 📤"}
-          </button>
-          <button
-            onClick={handlePlayAgain}
-            className="w-full py-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200 active:scale-95"
-            style={{
-              background: "rgba(255,255,255,0.8)",
-              border: `2px solid ${data.color}40`,
-              color: data.color,
-            }}
-          >
-            重新測驗 🔄
-          </button>
         </div>
       </div>
     </main>
