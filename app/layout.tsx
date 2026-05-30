@@ -29,18 +29,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       {/* 3. 將原本的 noto.className 改成 notoSerif.className */}
+
+      {/* ⚡️ 使用 Tailwind 原生語法：設定圖片、不重複、置中。並設定手機版尺寸為 130%，電腦版(sm)為 cover */}
       <body 
-        // ⚠️ 1. 將 className 改成這樣，加入了新的 bg-fish-responsive
-        className={`${notoSerif.className} h-full w-full relative overflow-hidden bg-fish-responsive`}
-        
-        // ⚠️ 2. 將 style 那一行整行刪除！不要把背景設定寫在這裡
-        // style={{
-        //   backgroundImage: "url('/fish-bg.png')",
-        //   backgroundRepeat: "no-repeat",
-        //   backgroundSize: "cover",
-        //   backgroundPosition: "center",
-        //   backgroundColor: "#FDF5E6" 
-        // }}
+        className={`${notoSerif.className} h-full w-full relative overflow-hidden bg-[#FDF5E6] bg-[url('/fish-bg.png')] bg-no-repeat bg-center max-sm:bg-[size:130%] sm:bg-cover`}
       >
         
         {/* ================= 裝飾早餐圖案 (大螢幕顯示) ================= */}

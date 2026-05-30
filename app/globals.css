@@ -21,7 +21,8 @@
 
 /* 將 html 和 body 合併，並加入響應式設計的優化 */
 html, body {
-  background: var(--background);
+  /* ⚡️ 關鍵修正：將 background 改成 background-color，才不會吃掉背景圖片！ */
+  background-color: var(--background);
   color: var(--foreground);
   
   /* 手機版體驗終極優化 */
@@ -29,25 +30,6 @@ html, body {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* ✅ ✅ 在 globals.css 的最下方，加入以下這段自訂的響應式背景 Class ✅ ✅ */
-@layer utilities {
-  /* 定義一個專門處理 fish-bg 的 Class */
-  .bg-fish-responsive {
-    background-image: url('/fish-bg.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    /* 1. 電腦版（sm 以上）：使用預設的 cover */
-    @media (min-width: 640px) {
-      background-size: cover;
-    }
-    /* 2. 手機版（sm 以下）：強制將圖片縮小到 ~130%，避免過度放大 */
-    @media (max-width: 639px) {
-      background-size: 130%;
-    }
-  }
-}
-/* ✅ ✅ 結束 ✅ ✅ */
 
 @import "@heroui/styles"; 
 
