@@ -30,14 +30,17 @@ export default function RootLayout({
     >
       {/* 3. 將原本的 noto.className 改成 notoSerif.className */}
       <body 
-        className={`${notoSerif.className} h-full w-full relative overflow-hidden`}
-        style={{
-          backgroundImage: "url('/fish-bg.png')",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundColor: "#FDF5E6" 
-        }}
+        // ⚠️ 1. 將 className 改成這樣，加入了新的 bg-fish-responsive
+        className={`${notoSerif.className} h-full w-full relative overflow-hidden bg-fish-responsive`}
+        
+        // ⚠️ 2. 將 style 那一行整行刪除！不要把背景設定寫在這裡
+        // style={{
+        //   backgroundImage: "url('/fish-bg.png')",
+        //   backgroundRepeat: "no-repeat",
+        //   backgroundSize: "cover",
+        //   backgroundPosition: "center",
+        //   backgroundColor: "#FDF5E6" 
+        // }}
       >
         
         {/* ================= 裝飾早餐圖案 (大螢幕顯示) ================= */}
