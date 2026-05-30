@@ -13,80 +13,43 @@ export default function Home() {
 
   return (
     <main
-      style={{ fontFamily: "'Noto Sans TC', sans-serif" }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
     >
-      {/* 背景紋理 */}
-      <div
-        className="absolute inset-0 -z-10"
-        style={{
-          background: "linear-gradient(160deg, #FFF8EE 0%, #FFF3DC 50%, #FFE9C4 100%)",
-        }}
-      />
-      {/* 裝飾圓 */}
-      <div
-        className="absolute top-[-80px] right-[-80px] w-64 h-64 rounded-full opacity-20 -z-10"
-        style={{ background: "radial-gradient(circle, #F59E0B, transparent)" }}
-      />
-      <div
-        className="absolute bottom-[-60px] left-[-60px] w-48 h-48 rounded-full opacity-20 -z-10"
-        style={{ background: "radial-gradient(circle, #FB923C, transparent)" }}
-      />
 
-      {/* 頂部裝飾 emoji */}
-      <div className="text-4xl mb-6 flex gap-3">
-        <span style={{ animationDelay: "0s" }} className="inline-block animate-bounce">🥚</span>
-        <span style={{ animationDelay: "0.15s" }} className="inline-block animate-bounce">🧋</span>
-        <span style={{ animationDelay: "0.3s" }} className="inline-block animate-bounce">🍝</span>
-      </div>
-
-      {/* 標題卡片 */}
+      {/* 標題卡片：改為盤子造型，移除原有的邊框與背景色 */}
       <div
-        className="w-full max-w-sm rounded-3xl px-8 py-10 text-center shadow-xl"
+        className="w-[95%] max-w-[550px] aspect-square flex flex-col items-center justify-center text-center p-10 relative"
         style={{
-          background: "rgba(255,255,255,0.75)",
-          backdropFilter: "blur(12px)",
-          border: "2px solid rgba(251,191,36,0.3)",
+          // 套用你的去背盤子圖案
+          backgroundImage: "url('/plate.png')",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "contain", // 使用 contain 確保盤子完整縮放不被裁切
+          backgroundPosition: "center",
         }}
       >
-        <p className="text-xs font-bold tracking-widest text-amber-500 mb-3 uppercase">
-          早餐店人格測驗
-        </p>
-        <h1 className="text-2xl font-black text-stone-800 leading-snug mb-2">
-          你是哪種
-          <br />
-          早餐店早餐？
-        </h1>
-        <div className="text-2xl my-3">🥪🥛</div>
-
-        <div className="text-sm text-stone-500 leading-7 text-left mt-4 space-y-1">
-          <p>有人像薯餅蛋餅，外酥內柔。</p>
-          <p>有人像大冰奶，看起來沒事，</p>
-          <p className="pl-4">其實隨時有可能「爆發」。</p>
-          <p>也有人像鐵板麵，</p>
-          <p className="pl-4">人生永遠一團混亂，但很好吃。</p>
-          <p className="mt-2 font-medium text-stone-600">快來測測你是哪種早餐！</p>
+        <div className="text-lg sm:text-xl text-amber-950 leading-8 text-center mt-2 space-y-2 font-bold">
+          <p>「阿姆...好吃」</p>
+          <p>你重生了，由於上一世太愛吃早餐</p>
+          {/* 如果你希望文字完美置中，建議可以把這裡原本的 pl-4 拿掉，或者保留製造錯落感 */}
+          <p className="pl-4">這一世，你將化身早餐店熱門品項</p>
+          <p>陷入無限被吃的循環  (嚼嚼嚼) </p>
+          <p className="mt-8 text-center text-amber-950 text-xl">快來測測你是早餐店的哪個品項！</p>
         </div>
 
-        {/* 開始按鈕 */}
+        {/* 2. 開始按鈕放大：寬度改為 75%，上下 padding 加大到 py-4，字體放大到 text-xl sm:text-2xl */}
         <button
           onClick={handleStart}
-          className="mt-8 w-full py-4 rounded-2xl text-white font-black text-lg tracking-wider transition-all duration-200 active:scale-95 shadow-lg"
+          className="mt-8 w-[60%] sm:w-[50%] py-4 sm:py-5 rounded-full text-[#356392] font-bold text-xl sm:text-2xl tracking-widest transition-all duration-200 active:scale-95 shadow-xl hover:shadow-2xl hover:scale-105"
           style={{
-            background: "linear-gradient(135deg, #F59E0B, #EA580C)",
-            boxShadow: "0 6px 20px rgba(234,88,12,0.35)",
+            background: "linear-gradient(135deg, #f7e596, #f7e596)", 
+            boxShadow: "0 6px 20px rgba(180,83,9,0.35)",
           }}
         >
-          開始點餐 🛎️
+          開　始　測　驗
         </button>
 
-        <p className="text-xs text-stone-400 mt-4">共 4 題・約 1 分鐘</p>
+        <p className="text-m text-amber-950 mt-4 font-bold">共 4 題・約 1 分鐘</p>
       </div>
-
-      {/* 底部小字 */}
-      <p className="text-xs text-stone-400 mt-8">
-        測驗結果僅供娛樂，請勿認真 😌
-      </p>
     </main>
   );
 }

@@ -26,3 +26,16 @@ body {
 }
 
 @import "@heroui/styles"; 
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-5px) rotate(-1deg); }
+  75% { transform: translateX(5px) rotate(1deg); }
+}
+
+/* 建立動畫 Class */
+.animate-shake {
+  animation: shake 2s ease-in-out infinite;
+  /* 確保動畫中心點在圖片正中央 */
+  transform-origin: center center;
+}
