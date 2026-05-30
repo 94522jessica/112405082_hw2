@@ -19,10 +19,19 @@
   }
 }
 
-body {
+/* 將 html 和 body 合併，並加入手機版優化 */
+html, body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* ⚠️ 已經幫你移除了寫死的 Arial 字體，確保思源宋體能順利運作 */
+
+  /* 👇 手機版體驗終極優化 👇 */
+  /* 防止手機版網頁往上/下拉時出現白邊或觸發重新整理 */
+  overscroll-behavior: none;
+  /* 防止連續點擊按鈕時（例如一直按下一題），畫面突然被放大 */
+  touch-action: manipulation;
+  /* 移除手機瀏覽器點擊按鈕時，預設會出現的「半透明灰色閃爍方塊」 */
+  -webkit-tap-highlight-color: transparent;
 }
 
 @import "@heroui/styles"; 
